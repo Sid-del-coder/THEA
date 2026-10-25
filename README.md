@@ -31,7 +31,7 @@ Event observing indicators use simplified Sun, Moon, and planet positions. Where
 
 ## Files and responsibilities
 
-- `index69.html`: page structure and controls.
+- `index.html`: page structure and controls.
 - `css/style.css`: visual system and responsive presentation.
 - `js/app.js`: core astronomy helpers, location state, event catalog rendering, local visibility messaging, and main UI.
 - `js/enhancements.js`: forecast/condition indicators, sky map, reminders, and dynamic event feed loading.
