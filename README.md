@@ -7,7 +7,7 @@ AstroScope is a location-aware observing guide with an astronomy event catalog, 
 The original private credentials were exposed in browser JavaScript. **Rotate/revoke those old credentials in each provider dashboard.**  
 This project contains no copied secret values. Configure fresh keys as server-side environment variables using `.env.example` as the list of required names.
 
-Never commit a real `.env` file. It is already listed in `.gitignore`.
+
 
 ## What was added
 Server-side API proxy for NASA APOD, OpenWeather, AstronomyAPI, NOAA SWPC space weather and Mapbox geocoding
