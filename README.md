@@ -31,15 +31,16 @@ Event observing indicators use simplified Sun, Moon, and planet positions. Where
 
 ## Files and responsibilities
 
-1.index69.html: page structure and controls.
-2.css/style.css: visual system and responsive presentation.
-3.js/app.js: core astronomy helpers, location state, event catalog rendering, local visibility messaging, and main UI.
-3.js/enhancements.js: forecast/condition indicators, sky map, reminders, and dynamic event feed loading.
-4.js/trip.js: observing-site ranking and trip detail calculations.
-data/events.json: normalized event catalog and event metadata.
-data/sites.json: observing site coordinates and approximate Bortle classes.
-server.js: static server and server-side API proxies.
-assets/stars.png: star-field image asset.
+- `index69.html`: page structure and controls.
+- `css/style.css`: visual system and responsive presentation.
+- `js/app.js`: core astronomy helpers, location state, event catalog rendering, local visibility messaging, and main UI.
+- `js/enhancements.js`: forecast/condition indicators, sky map, reminders, and dynamic event feed loading.
+- `js/trip.js`: observing-site ranking and trip detail calculations.
+- `data/events.json`: normalized event catalog and event metadata.
+- `data/sites.json`: observing site coordinates and approximate Bortle classes.
+- `server.js`: static server and server-side API proxies.
+- `assets/stars.png`: star-field image asset.
+
 
 ## Events and space weather
 The Events page is the searchable/filterable catalog; the Calendar page provides a date-grid view of the same catalog.Space-weather indicators use NOAA SWPC global planetary Kp data and its OVATION aurora model. The local aurora figure is a nearest-grid model value, not a guarantee that aurora will be visible from the selected site.
