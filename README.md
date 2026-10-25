@@ -55,4 +55,4 @@ Browser notifications are checked every minute while the page is open and when i
 
 ## Extra 
 We will be Adding Backend with Sql soon 
-https://github.com/UNIT-01-00/Thea.git :- this is the link to our old GitHub repo with the Sql Backend 
+https://github.com/UNIT-01-00/Thea.git :- this is the link to our old GitHub repo with the Sql Backend Do note that repo is private . 
