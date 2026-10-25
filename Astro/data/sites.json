@@ -1,0 +1,23 @@
+{
+  "updated": "2026-10-24",
+  "note": "Bortle values are approximate classes for the general area, not measurements. Verify any site on lightpollutionmap.info before travelling.",
+  "sites": [
+    {"id":"bhandardara","name":"Bhandardara","region":"Ahmednagar, Maharashtra, India","lat":19.547,"lng":73.76,"tz":"Asia/Kolkata","bortle":[4,5],"note":"Lake and hill area in the Sahyadris with open ridges around Arthur Lake. Expect some light domes on the horizon from nearby towns."},
+    {"id":"kaas","name":"Kaas Plateau","region":"Satara, Maharashtra, India","lat":17.72,"lng":73.824,"tz":"Asia/Kolkata","bortle":[4,5],"note":"Open high plateau with wide horizons. It is a protected seasonal flower reserve, so check entry rules before planning a night visit."},
+    {"id":"tamhini","name":"Tamhini Ghat","region":"Pune / Raigad, Maharashtra, India","lat":18.475,"lng":73.42,"tz":"Asia/Kolkata","bortle":[4,5],"note":"Forested ghat road with limited open ground. Scout a clear pull-off in daylight."},
+    {"id":"pawna","name":"Pawna Lake","region":"Pune, Maharashtra, India","lat":18.66,"lng":73.5,"tz":"Asia/Kolkata","bortle":[5,6],"note":"Popular lakeside camping close to Pune. Easy access, but expect more skyglow than the deeper Sahyadri sites."},
+    {"id":"malshej","name":"Malshej Ghat","region":"Thane / Pune, Maharashtra, India","lat":19.36,"lng":73.78,"tz":"Asia/Kolkata","bortle":[4,5],"note":"High ghat with open viewpoints. The monsoon is cloudy, so plan for roughly October to April."},
+    {"id":"bhimashankar","name":"Bhimashankar","region":"Pune, Maharashtra, India","lat":19.07,"lng":73.535,"tz":"Asia/Kolkata","bortle":[4,5],"note":"Forest sanctuary and temple town. Check sanctuary timings and observe from open areas outside the forest."},
+    {"id":"kutch","name":"Rann of Kutch (Dhordo)","region":"Kutch, Gujarat, India","lat":23.867,"lng":69.686,"tz":"Asia/Kolkata","bortle":[2,3],"note":"Flat white salt desert with a huge open horizon. Best in the cool season. Check permit requirements and festival dates."},
+    {"id":"sam","name":"Sam Sand Dunes","region":"Jaisalmer, Rajasthan, India","lat":26.833,"lng":70.517,"tz":"Asia/Kolkata","bortle":[3,4],"note":"Desert dunes west of Jaisalmer. Tourist camps can be bright, so walk out beyond the camp lights."},
+    {"id":"kibber","name":"Kibber, Spiti","region":"Himachal Pradesh, India","lat":32.333,"lng":78.008,"tz":"Asia/Kolkata","bortle":[1,2],"highAlt":true,"note":"One of the highest villages reachable by road. Excellent skies in the cold season. Plan for altitude and possible road closures."},
+    {"id":"hanle","name":"Hanle Dark Sky Reserve","region":"Ladakh, India","lat":32.779,"lng":78.964,"tz":"Asia/Kolkata","bortle":[1,1],"highAlt":true,"note":"India's first dark sky reserve, home to the Indian Astronomical Observatory. Check permit requirements and acclimatise before going."},
+    {"id":"pangong","name":"Pangong Tso","region":"Ladakh, India","lat":33.75,"lng":78.67,"tz":"Asia/Kolkata","bortle":[1,2],"highAlt":true,"note":"High-altitude lake with very dark skies away from camps. Check permit requirements and altitude advice."},
+    {"id":"maunakea","name":"Mauna Kea Visitor Area","region":"Hawaii, USA","lat":19.76,"lng":-155.456,"tz":"Pacific/Honolulu","bortle":[1,2],"highAlt":true,"note":"Stargazing at the visitor area on the mountain. Summit access has restrictions, so check current rules."},
+    {"id":"atacama","name":"San Pedro de Atacama","region":"Antofagasta, Chile","lat":-22.91,"lng":-68.2,"tz":"America/Santiago","bortle":[2,3],"note":"Dry high desert with some of the clearest skies on Earth. Town lights are bright, so move out into the desert."},
+    {"id":"cherrysprings","name":"Cherry Springs State Park","region":"Pennsylvania, USA","lat":41.664,"lng":-77.825,"tz":"America/New_York","bortle":[2,2],"note":"Designated dark sky park with a dedicated observing field. Check seasonal rules."},
+    {"id":"namibrand","name":"NamibRand Nature Reserve","region":"Namibia","lat":-25.0,"lng":16.0,"tz":"Africa/Windhoek","bortle":[1,1],"note":"International Dark Sky Reserve in the Namib Desert. Check access and booking rules before travelling."},
+    {"id":"tekapo","name":"Lake Tekapo","region":"Canterbury, New Zealand","lat":-44.005,"lng":170.478,"tz":"Pacific/Auckland","bortle":[2,3],"note":"Core of the Aoraki Mackenzie International Dark Sky Reserve. The town uses controlled lighting."},
+    {"id":"lapalma","name":"Roque de los Muchachos","region":"La Palma, Spain","lat":28.757,"lng":-17.892,"tz":"Atlantic/Canary","bortle":[1,2],"note":"Observatory ridge with exceptionally dark skies. Check road and access rules."}
+  ]
+}
