@@ -53,6 +53,10 @@ Rise/set times remain sampled estimates.
 Browser notifications are checked every minute while the page is open and when it becomes active.
 “Add calendar alert” downloads an iCalendar event with a 24-hour alarm. Import it into a calendar app for notifications while AstroScope is closed. Delivery depends on that app and device.
 
-## Extra 
-We will be Adding Backend with Sql soon 
-https://github.com/UNIT-01-00/Thea.git :- this is the link to our old GitHub repo with the Sql Backend Do note that repo is private . 
+SQL Backend:
+AstroScope features a full-stack architecture powered by **Node.js**, **Express**, and **MySQL** (`astroscope_db`) to handle persistent data storage, user authentication, and dynamic astronomical event feeds.
+Key Features
+- **Relational Data Storage:** Structured MySQL schema managing user accounts, observation logs, and event records.
+- **RESTful Endpoints:** Express API serving astronomical calculations, local sky observations, and database transactions.
+- **Environment Configuration:** Sensitive credentials and database configurations are securely isolated via environment variables.
+
