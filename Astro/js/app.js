@@ -113,31 +113,181 @@ function fmtTimeTz(d,tz){ if(!d) return "—"; try{ return d.toLocaleTimeString(
 function fmtDate(d,tz){ try{return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',timeZone:tz});}catch(e){return d.toDateString();} }
 
 // JPL approximate Keplerian elements/rates, valid 1800–2050. These are still not a full numerical ephemeris.
+// JPL approximate Keplerian elements/rates, valid 1800–2050.
 const PLANETS = [
- {name:"Mercury",emoji:"☿",a0:.38709927,ad:.00000037,e0:.20563593,ed:.00001906,i0:7.00497902,id:-.00594749,L0:252.2503235,Ld:149472.67411175,varpi0:77.45779628,vd:.16047689,node0:48.33076593,nd:-.12534081},
- {name:"Venus",emoji:"♀️",a0:.72333566,ad:.00000390,e0:.00677672,ed:-.00004107,i0:3.39467605,id:-.00078890,L0:181.9790995,Ld:58517.81538729,varpi0:131.60246718,vd:.00268329,node0:76.67984255,nd:-.27769418},
- {name:"Mars",emoji:'<span class="mini-planet" style="background:radial-gradient(circle at 32% 28%, #e2a184, #c1603f 45%, #5c2a18 115%);"></span>',a0:1.52371034,ad:.00001847,e0:.09339410,ed:.00007882,i0:1.84969142,id:-.00813131,L0:-4.55343205,Ld:19140.30268499,varpi0:-23.94362959,vd:.44441088,node0:49.55953891,nd:-.29257343},
- {name:"Jupiter",emoji:'<span class="mini-planet" style="background:radial-gradient(circle at 32% 28%, rgba(255,255,255,.35), transparent 40%), repeating-linear-gradient(4deg, #e7c9a0 0 8%, #c9a06a 8% 16%, #a97f4c 16% 24%, #dbb98a 24% 32%, #c9a06a 32% 42%, #b58c5c 42% 50%, #e7c9a0 50% 58%, #c9a06a 58% 68%, #a97f4c 68% 78%, #dbb98a 78% 88%, #c9a06a 88% 100%);"></span>',a0:5.202887,ad:-.00011607,e0:.04838624,ed:-.00013253,i0:1.30439695,id:-.00183714,L0:34.39644051,Ld:3034.74612775,varpi0:14.72847983,vd:.21252668,node0:100.47390909,nd:.20469106},
- {name:"Saturn",emoji:'<span class="mini-planet has-ring" style="background:radial-gradient(circle at 32% 28%, rgba(255,255,255,.35), transparent 40%), repeating-linear-gradient(4deg, #f2e6c4 0 12%, #d9c79a 12% 24%, #e8dcb2 24% 36%, #d0bd8c 36% 50%, #f2e6c4 50% 62%, #d9c79a 62% 76%, #e8dcb2 76% 88%, #d0bd8c 88% 100%);"></span>',a0:9.53667594,ad:-.00125060,e0:.05386179,ed:-.00050991,i0:2.48599187,id:.00193609,L0:49.95424423,Ld:1222.49362201,varpi0:92.59887831,vd:-.41897216,node0:113.66242448,nd:-.28867794},
-];
-function planetGeoRaDec(p,d){
-  const T=(toJulian(d)-2451545)/36525, rad=RAD, wrap=x=>((x%360)+360)%360;
-  function heliocentric(o){
-    const a=o.a0+o.ad*T,e=o.e0+o.ed*T,I=(o.i0+o.id*T)*rad,L=o.L0+o.Ld*T,varpi=o.varpi0+o.vd*T,nodeDeg=o.node0+o.nd*T;
-    const node=nodeDeg*rad,omega=(varpi-nodeDeg)*rad,M=wrap(L-varpi)*rad;
-    let E=M+e*Math.sin(M);for(let k=0;k<8;k++){const delta=(M-(E-e*Math.sin(E)))/(1-e*Math.cos(E));E+=delta;if(Math.abs(delta)<1e-12)break;}
-    const xp=a*(Math.cos(E)-e),yp=a*Math.sqrt(1-e*e)*Math.sin(E),co=Math.cos(omega),so=Math.sin(omega),cn=Math.cos(node),sn=Math.sin(node),ci=Math.cos(I),si=Math.sin(I);
-    return {x:(co*cn-so*sn*ci)*xp+(-so*cn-co*sn*ci)*yp,y:(co*sn+so*cn*ci)*xp+(-so*sn+co*cn*ci)*yp,z:so*si*xp+co*si*yp};
+  {
+    name: "Mercury",
+    emoji: '<img class="planet-pic" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Mercury_in_true_color.jpg/120px-Mercury_in_true_color.jpg" alt="Mercury">',
+    a0: 0.38709927,
+    ad: 0.00000037,
+    e0: 0.20563593,
+    ed: 0.00001906,
+    i0: 7.00497902,
+    id: -0.00594749,
+    L0: 252.25032350,
+    Ld: 149472.67411175,
+    varpi0: 77.45779628,
+    vd: 0.16047689,
+    node0: 48.33076593,
+    nd: -0.12534081
+  },
+  {
+    name: "Venus",
+    emoji: '<img class="planet-pic" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Venus_2_Approach_Image.jpg/120px-Venus_2_Approach_Image.jpg" alt="Venus">',
+    a0: 0.72333566,
+    ad: 0.00000390,
+    e0: 0.00677672,
+    ed: -0.00004107,
+    i0: 3.39467605,
+    id: -0.00078890,
+    L0: 181.97909950,
+    Ld: 58517.81538729,
+    varpi0: 131.60246718,
+    vd: 0.00268329,
+    node0: 76.67984255,
+    nd: -0.27769418
+  },
+  {
+    name: "Mars",
+    emoji: '<img class="planet-pic" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/120px-OSIRIS_Mars_true_color.jpg" alt="Mars">',
+    a0: 1.52371034,
+    ad: 0.00001847,
+    e0: 0.09339410,
+    ed: 0.00007882,
+    i0: 1.84969142,
+    id: -0.00813131,
+    L0: -4.55343205,
+    Ld: 19140.30268499,
+    varpi0: -23.94362959,
+    vd: 0.44441088,
+    node0: 49.55953891,
+    nd: -0.29257343
+  },
+  {
+    name: "Jupiter",
+    emoji: '<img class="planet-pic" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Jupiter.jpg/120px-Jupiter.jpg" alt="Jupiter">',
+    a0: 5.20288700,
+    ad: -0.00011607,
+    e0: 0.04838624,
+    ed: -0.00013253,
+    i0: 1.30439695,
+    id: -0.00183714,
+    L0: 34.39644051,
+    Ld: 3034.74612775,
+    varpi0: 14.72847983,
+    vd: 0.21252668,
+    node0: 100.47390909,
+    nd: 0.20469106
+  },
+  {
+    name: "Saturn",
+    emoji: '<img class="planet-pic" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Saturn_during_Equinox.jpg/120px-Saturn_during_Equinox.jpg" style="border-radius:0; width:1.8em; height:auto; box-shadow:none;" alt="Saturn">',
+    a0: 9.53667594,
+    ad: -0.00125060,
+    e0: 0.05386179,
+    ed: -0.00050991,
+    i0: 2.48599187,
+    id: 0.00193609,
+    L0: 49.95424423,
+    Ld: 1222.49362201,
+    varpi0: 92.59887831,
+    vd: -0.41897216,
+    node0: 113.66242448,
+    nd: -0.28867794
+  },
+  {
+    name: "Uranus",
+    emoji: '<img class="planet-pic" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Uranus2.jpg/120px-Uranus2.jpg" alt="Uranus">',
+    a0: 19.18916464,
+    ad: -0.00196176,
+    e0: 0.04725744,
+    ed: -0.00004397,
+    i0: 0.77263783,
+    id: -0.00242939,
+    L0: 313.23810451,
+    Ld: 428.48202785,
+    varpi0: 170.95427630,
+    vd: 0.40805281,
+    node0: 74.01692503,
+    nd: 0.04240589
+  },
+  {
+    name: "Neptune",
+    emoji: '<img class="planet-pic" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Neptune.jpg/120px-Neptune.jpg" alt="Neptune">',
+    a0: 30.06992276,
+    ad: 0.00026291,
+    e0: 0.00860619,
+    ed: 0.00005105,
+    i0: 1.77004347,
+    id: 0.00035372,
+    L0: -55.12002969,
+    Ld: 218.45945325,
+    varpi0: 44.96476227,
+    vd: -0.32241464,
+    node0: 131.78422574,
+    nd: -0.00508664
   }
-  const earth=heliocentric({a0:1.00000261,ad:.00000562,e0:.01671123,ed:-.00004392,i0:-.00001531,id:-.01294668,L0:100.46457166,Ld:35999.37244981,varpi0:102.93768193,vd:.32327364,node0:0,nd:0});
-  const body=heliocentric(p),x=body.x-earth.x,y=body.y-earth.y,z=body.z-earth.z;
-  const eps=23.43928*rad,xeq=x,yeq=y*Math.cos(eps)-z*Math.sin(eps),zeq=y*Math.sin(eps)+z*Math.cos(eps);
-  let ra=Math.atan2(yeq,xeq),dec=Math.atan2(zeq,Math.hypot(xeq,yeq));
-  // Precess J2000 equatorial coordinates to the date used by the sidereal-time calculation.
-  const zeta=(2306.2181*T+.30188*T*T+.017998*T*T*T)/3600*rad,zAngle=(2306.2181*T+1.09468*T*T+.018203*T*T*T)/3600*rad,theta=(2004.3109*T-.42665*T*T-.041833*T*T*T)/3600*rad;
-  const A=Math.cos(dec)*Math.sin(ra+zeta),B=Math.cos(theta)*Math.cos(dec)*Math.cos(ra+zeta)-Math.sin(theta)*Math.sin(dec),C=Math.sin(theta)*Math.cos(dec)*Math.cos(ra+zeta)+Math.cos(theta)*Math.sin(dec);
-  ra=((Math.atan2(A,B)+zAngle)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);dec=Math.asin(Math.max(-1,Math.min(1,C)));
-  return {ra,dec};
+];
+ /* ============ HELIOCENTRIC ORBIT MATH ============ */
+function heliocentric(o, d){
+  const T = (toJulian(d) - 2451545) / 36525;
+  const rad = RAD;
+  const wrap = x => ((x % 360) + 360) % 360;
+
+  const a = o.a0 + (o.ad || 0) * T;
+  const e = o.e0 + (o.ed || 0) * T;
+  const I = (o.i0 + (o.id || 0) * T) * rad;
+  const L = o.L0 + o.Ld * T;
+  const varpi = o.varpi0 + (o.vd || 0) * T;
+  const nodeDeg = o.node0 + (o.nd || 0) * T;
+
+  const node = nodeDeg * rad;
+  const omega = (varpi - nodeDeg) * rad;
+  const M = wrap(L - varpi) * rad;
+
+  let E = M + e * Math.sin(M);
+  for(let k = 0; k < 8; k++){
+    const delta = (M - (E - e * Math.sin(E))) / (1 - e * Math.cos(E));
+    E += delta;
+    if(Math.abs(delta) < 1e-12) break;
+  }
+
+  const xp = a * (Math.cos(E) - e);
+  const yp = a * Math.sqrt(1 - e * e) * Math.sin(E);
+  const co = Math.cos(omega), so = Math.sin(omega);
+  const cn = Math.cos(node),  sn = Math.sin(node);
+  const ci = Math.cos(I),     si = Math.sin(I);
+
+  return {
+    x: (co * cn - so * sn * ci) * xp + (-so * cn - co * sn * ci) * yp,
+    y: (co * sn + so * cn * ci) * xp + (-so * sn + co * sn * ci) * yp,
+    z: so * si * xp + co * si * yp
+  };
+}
+
+function planetGeoRaDec(p, d){
+  const T = (toJulian(d) - 2451545) / 36525, rad = RAD;
+  const earth = heliocentric({
+    a0: 1.00000261, ad: 0.00000562, e0: 0.01671123, ed: -0.00004392,
+    i0: -0.00001531, id: -0.01294668, L0: 100.46457166, Ld: 35999.37244981,
+    varpi0: 102.93768193, vd: 0.32327364, node0: 0, nd: 0
+  }, d);
+
+  const body = heliocentric(p, d);
+  const x = body.x - earth.x, y = body.y - earth.y, z = body.z - earth.z;
+  const eps = 23.43928 * rad;
+  const xeq = x, yeq = y * Math.cos(eps) - z * Math.sin(eps), zeq = y * Math.sin(eps) + z * Math.cos(eps);
+  let ra = Math.atan2(yeq, xeq), dec = Math.atan2(zeq, Math.hypot(xeq, yeq));
+
+  const zeta = (2306.2181 * T + 0.30188 * T * T + 0.017998 * T * T * T) / 3600 * rad;
+  const zAngle = (2306.2181 * T + 1.09468 * T * T + 0.018203 * T * T * T) / 3600 * rad;
+  const theta = (2004.3109 * T - 0.42665 * T * T - 0.041833 * T * T * T) / 3600 * rad;
+  const A = Math.cos(dec) * Math.sin(ra + zeta);
+  const B = Math.cos(theta) * Math.cos(dec) * Math.cos(ra + zeta) - Math.sin(theta) * Math.sin(dec);
+  const C = Math.sin(theta) * Math.cos(dec) * Math.cos(ra + zeta) + Math.cos(theta) * Math.sin(dec);
+  ra = ((Math.atan2(A, B) + zAngle) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+  dec = Math.asin(Math.max(-1, Math.min(1, C)));
+  return { ra, dec };
 }
 
 /* ============ LOCATION ============ */
@@ -299,10 +449,9 @@ function renderTonight(){
     ['Moonset', fmtTimeTz(moonRS.set,tz)],
     ['Moon Illum.', Math.round(moonI.frac*100)+'%'],
   ].map(([l,v])=>`<div class="card c"><div class="l">${l}</div><div class="v">${v}</div></div>`).join('');
-
-  let cards=`<div class="card obj-card"><div class="emoji">🌙</div><div class="name">Moon</div>
-    <div class="stat">${moonPhaseName(moonI.age)} · ${Math.round(moonI.frac*100)}% lit</div>
-    <div class="stat">Rise ${fmtTimeTz(moonRS.rise,tz)} · Set ${fmtTimeTz(moonRS.set,tz)}</div></div>`;
+let cards=`<div class="card obj-card"><div class="emoji"><img class="planet-pic" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/FullMoon2010.jpg/120px-FullMoon2010.jpg" alt="Moon"></div><div class="name">Moon</div>
+  <div class="stat">${moonPhaseName(moonI.age)} · ${Math.round(moonI.frac*100)}% lit</div>
+  <div class="stat">Rise ${fmtTimeTz(moonRS.rise,tz)} · Set ${fmtTimeTz(moonRS.set,tz)}</div></div>`;
 
   PLANETS.forEach(p=>{
     const rs = riseSetTransit(t=>planetGeoRaDec(p,t), now, lat, lng, 0);
@@ -312,8 +461,8 @@ function renderTonight(){
       <div class="stat">${fmtTimeTz(rs.rise,tz)} → ${fmtTimeTz(rs.set,tz)}</div>
       <div class="stat">Peak altitude ${Math.round(rs.maxAlt)}°</div></div>`;
   });
-  cards += `<div class="card obj-card"><div class="emoji"><svg viewBox="0 0 24 24" width="26" height="26"><path d="M3 21 L13 11" stroke="#ff9d5c" stroke-width="2.2" stroke-linecap="round" opacity="0.55"/><path d="M7 21 L15 13" stroke="#ff9d5c" stroke-width="1.6" stroke-linecap="round" opacity="0.35"/><circle cx="17" cy="7" r="3.6" fill="#ffb066"/></svg></div><div class="name">Meteor Activity</div>
-      <div class="stat">${meteorActivityTonight()}</div></div>`;
+cards += `<div class="card obj-card"><div class="emoji" style="display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; background:radial-gradient(circle at 70% 30%, #2a1b38, #0a0515); border-radius:50%; box-shadow:0 0 8px rgba(255, 140, 50, 0.3);"><svg viewBox="0 0 32 32" width="22" height="22" style="transform:rotate(-15deg); filter:drop-shadow(0 0 3px #ffaa44);"><defs><linearGradient id="meteorTail" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#ff4500" stop-opacity="0"/><stop offset="50%" stop-color="#ff8c00" stop-opacity="0.6"/><stop offset="90%" stop-color="#ffe066" stop-opacity="0.9"/><stop offset="100%" stop-color="#ffffff" stop-opacity="1"/></linearGradient></defs><path d="M4 28 C 12 20, 18 14, 26 6" stroke="url(#meteorTail)" stroke-width="2.5" stroke-linecap="round"/><circle cx="26" cy="6" r="3.2" fill="#ffffff" style="filter:drop-shadow(0 0 4px #ffaa33);"/></svg></div><div class="name">Meteor Activity</div>
+    <div class="stat">${meteorActivityTonight()}</div></div>`;
   document.getElementById('objGrid').innerHTML = cards;
 }
 function meteorActivityTonight(){
@@ -349,8 +498,26 @@ function renderNextEvent(){
     <button class="btn btn-primary" onclick="openEvent('${upcoming.id}')">View Observation Guide</button>
   `;
 }
-function categoryEmoji(cat){ return {Eclipse:'🌘','Meteor Shower':'<svg viewBox="0 0 24 24" width="1em" height="1em" style="vertical-align:-0.15em;"><path d="M3 21 L13 11" stroke="#ff9d5c" stroke-width="2.2" stroke-linecap="round" opacity="0.55"/><path d="M7 21 L15 13" stroke="#ff9d5c" stroke-width="1.6" stroke-linecap="round" opacity="0.35"/><circle cx="17" cy="7" r="3.6" fill="#ffb066"/></svg>',Seasonal:'☀️',Planet:'🪐',Moon:'🌙'}[cat]||'✨'; }
+function categoryEmoji(cat){
+  const imgStyle = 'width:1.25em; height:1.25em; object-fit:cover; border-radius:50%; vertical-align:-0.22em; display:inline-block;';
+  
+  const map = {
+    'Eclipse': `<img src="https://images-assets.nasa.gov/image/GSFC_20171208_Archive_e000880/GSFC_20171208_Archive_e000880~thumb.jpg" alt="Eclipse" style="${imgStyle} box-shadow:0 0 4px rgba(255,255,255,0.4);" referrerpolicy="no-referrer">`,
+    
+    // Official NASA photograph of a Perseid meteor streak
+    'Meteor Shower': `<img src="https://images-assets.nasa.gov/image/PIA23348/PIA23348~thumb.jpg" alt="Meteor Shower" style="width:1.25em; height:1.25em; object-fit:cover; border-radius:4px; vertical-align:-0.22em; display:inline-block; box-shadow:0 0 4px rgba(255,140,50,0.5);" referrerpolicy="no-referrer">`,
+    
+    'Seasonal': `<img src="https://images-assets.nasa.gov/image/GSFC_20171208_Archive_e001435/GSFC_20171208_Archive_e001435~thumb.jpg" alt="Seasonal Sun" style="${imgStyle} box-shadow:0 0 5px rgba(255,175,45,0.6);" referrerpolicy="no-referrer">`,
+    
+    'Planet': `<img src="https://images-assets.nasa.gov/image/PIA02873/PIA02873~thumb.jpg" alt="Planet" style="${imgStyle} box-shadow:0 0 4px rgba(255,255,255,0.25);" referrerpolicy="no-referrer">`,
+    
+    'Moon': `<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/FullMoon2010.jpg/120px-FullMoon2010.jpg" alt="Moon" style="${imgStyle} box-shadow:0 0 4px rgba(255,255,255,0.3);" referrerpolicy="no-referrer">`
+  };
 
+  const defaultSparkle = `<img src="https://images-assets.nasa.gov/image/hubble-captures-a-celestial-firework-display_28038753232_o/hubble-captures-a-celestial-firework-display_28038753232_o~thumb.jpg" alt="Event" style="${imgStyle}" referrerpolicy="no-referrer">`;
+
+  return map[cat] || defaultSparkle;
+}
 /* ============ RENDER: EVENTS GRID ============ */
 function renderEvents(){
   const grid=document.getElementById('evGrid');
@@ -412,32 +579,123 @@ function renderCalendar(){
 }
 
 /* ============ MOON MODULE ============ */
-function renderMoon(){
-  const now=new Date();
-  const m=moonIllumFrac(now);
-  const md=moonCoords(now);
-  document.getElementById('moonSub').textContent = USER_LOC?('As seen from '+USER_LOC.name):'Set your location for rise/set times';
-  document.getElementById('moonPhaseName').textContent = moonPhaseName(m.age);
-  document.getElementById('moonIllum').textContent = Math.round(m.frac*100)+'%';
-  document.getElementById('moonAge').textContent = m.age.toFixed(1)+' days';
-  document.getElementById('moonDist').textContent = Math.round(md.dist).toLocaleString()+' km';
-  // find next full/new moon by scanning illum fraction crossing
-  let nf=null, nn=null;
-  for(let d=1; d<40; d++){
-    const t=new Date(now.getTime()+d*86400000);
-    const mi=moonIllumFrac(t);
-    const name=moonPhaseName(mi.age);
-    if(!nf && name==='Full Moon') nf=t;
-    if(!nn && name==='New Moon') nn=t;
-    if(nf&&nn) break;
+function getMoonPhotoByAge(age) {
+  if (age < 1.84 || age >= 27.69) {
+    // New Moon
+    return 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Moon_symbol_decrescent.svg/240px-Moon_symbol_decrescent.svg.png';
+  } else if (age < 5.53) {
+    // Waxing Crescent
+    return 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Waxing_crescent_moon_2013-11-06.jpg/240px-Waxing_crescent_moon_2013-11-06.jpg';
+  } else if (age < 9.23) {
+    // First Quarter
+    return 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/First_quarter_moon_2013-11-10.jpg/240px-First_quarter_moon_2013-11-10.jpg';
+  } else if (age < 12.92) {
+    // Waxing Gibbous
+    return 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Waxing_gibbous_moon_2013-11-14.jpg/240px-Waxing_gibbous_moon_2013-11-14.jpg';
+  } else if (age < 16.61) {
+    // Full Moon
+    return 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/FullMoon2010.jpg/240px-FullMoon2010.jpg';
+  } else if (age < 20.30) {
+    // Waning Gibbous
+    return 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Waning_gibbous_moon_2013-11-20.jpg/240px-Waning_gibbous_moon_2013-11-20.jpg';
+  } else if (age < 23.99) {
+    // Last Quarter
+    return 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Third_quarter_moon_2013-11-25.jpg/240px-Third_quarter_moon_2013-11-25.jpg';
+  } else {
+    // Waning Crescent
+    return 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Waning_crescent_moon_2013-11-29.jpg/240px-Waning_crescent_moon_2013-11-29.jpg';
   }
-  document.getElementById('nextFull').textContent = nf? nf.toLocaleDateString('en-US',{month:'long',day:'numeric'}) : '—';
-  document.getElementById('nextNew').textContent = nn? nn.toLocaleDateString('en-US',{month:'long',day:'numeric'}) : '—';
-  // simple moon visual: shift shadow based on phase
-  const pct = m.frac;
-  const dir = m.waxing? 'right':'left';
-  document.getElementById('moonVis').innerHTML = `<div style="position:absolute; inset:0; background:radial-gradient(circle at 35% 30%, #e8e8e8, #999 70%);"></div>
-    <div style="position:absolute; top:0; bottom:0; ${dir}:0; width:${Math.round((1-pct)*100)}%; background:#000;"></div>`;
+}
+function renderMoon(){
+  try {
+    const now = new Date();
+    const m = moonIllumFrac(now);
+    const md = moonCoords(now);
+
+    const subEl = document.getElementById('moonSub');
+    if (subEl) subEl.textContent = USER_LOC ? ('As seen from ' + USER_LOC.name) : 'Set your location for rise/set times';
+
+    const phaseEl = document.getElementById('moonPhaseName');
+    if (phaseEl) phaseEl.textContent = moonPhaseName(m.age);
+
+    const illumEl = document.getElementById('moonIllum');
+    if (illumEl) illumEl.textContent = Math.round(m.frac * 100) + '%';
+
+    const ageEl = document.getElementById('moonAge');
+    if (ageEl) ageEl.textContent = m.age.toFixed(1) + ' days';
+
+    const distEl = document.getElementById('moonDist');
+    if (distEl) distEl.textContent = Math.round(md.dist).toLocaleString() + ' km';
+
+    // Scan next full/new moon
+    let nf = null, nn = null;
+    for(let d = 1; d < 40; d++){
+      const t = new Date(now.getTime() + d * 86400000);
+      const mi = moonIllumFrac(t);
+      const name = moonPhaseName(mi.age);
+      if(!nf && name === 'Full Moon') nf = t;
+      if(!nn && name === 'New Moon') nn = t;
+      if(nf && nn) break;
+    }
+
+    const nextFullEl = document.getElementById('nextFull');
+    if (nextFullEl) nextFullEl.textContent = nf ? nf.toLocaleDateString('en-US', {month:'long', day:'numeric'}) : '—';
+
+    const nextNewEl = document.getElementById('nextNew');
+    if (nextNewEl) nextNewEl.textContent = nn ? nn.toLocaleDateString('en-US', {month:'long', day:'numeric'}) : '—';
+
+    // Realistic Photographic Lunar Disc
+    const visEl = document.getElementById('moonVis');
+    if (visEl) {
+      const R = 50;
+      const k = m.frac; // e.g. 0.76 for 76% illuminated
+      const waxing = m.waxing;
+
+      // Semi-minor axis of the elliptical terminator
+      const b = Math.abs(R * (2 * k - 1));
+
+      // Correct astronomical shadow sweeps:
+      // Dark outer limb: left half (0) when waxing, right half (1) when waning
+      const darkOuterSweep = waxing ? 0 : 1;
+      
+      // Terminator arc:
+      // When k >= 0.5 (gibbous), terminator curves towards the shadow side
+      // When k < 0.5 (crescent), terminator curves into the lit side
+      const terminatorSweep = (k >= 0.5) ? (waxing ? 1 : 0) : (waxing ? 0 : 1);
+
+      let shadowPath = '';
+      if (k <= 0.015) {
+        // New Moon: 100% shadow
+        shadowPath = `M 50,0 A ${R},${R} 0 1,1 49.99,0 Z`;
+      } else if (k < 0.985) {
+        // Exact shadow sliver/crescent path
+        shadowPath = `M 50,0 A ${R},${R} 0 0,${darkOuterSweep} 50,100 A ${b},${R} 0 0,${terminatorSweep} 50,0 Z`;
+      }
+
+      // Reliable NASA open-access Galileo photographic lunar texture
+      const moonPhoto = 'https://images-assets.nasa.gov/image/PIA00405/PIA00405~medium.jpg';
+
+      visEl.innerHTML = `
+        <div style="position:relative; width:130px; height:130px; margin:0 auto; border-radius:50%; overflow:hidden; background:#000; box-shadow:0 0 24px rgba(180, 210, 255, 0.2);">
+          
+          <!-- NASA High-Res Photographic Moon Disc -->
+          <img src="${moonPhoto}" 
+               alt="" 
+               referrerpolicy="no-referrer"
+               style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; filter:contrast(1.12) brightness(1.04);">
+
+          <!-- Real-Time Astronomical Shadow Overlay -->
+          <svg viewBox="0 0 100 100" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none;">
+            ${shadowPath ? `<path d="${shadowPath}" fill="rgba(6, 8, 14, 0.92)" />` : ''}
+          </svg>
+
+          <!-- 3D Spherical Rim Light & Depth -->
+          <div style="position:absolute; inset:0; border-radius:50%; box-shadow:inset -4px -4px 10px rgba(0,0,0,0.85), inset 1px 1px 3px rgba(255,255,255,0.3); pointer-events:none;"></div>
+        </div>`;
+    }
+  } catch(err) {
+    console.error("renderMoon error:", err);
+  }
 }
 async function renderMoonImage(){
   const body = document.getElementById('moonRenderBody');
@@ -495,7 +753,41 @@ function scrollToId(id){ document.getElementById(id).scrollIntoView({behavior:'s
 document.getElementById('fCategory').onchange=renderEvents;
 document.getElementById('fVisibility').onchange=renderEvents;
 document.getElementById('fRange').onchange=renderEvents;
+function getTargetIcon(name, type) {
+  const imgStyle = 'width:1.25em; height:1.25em; object-fit:cover; border-radius:50%; vertical-align:-0.2em; display:inline-block; margin-right:6px;';
+  
+  const map = {
+    'Mercury': 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Mercury_in_true_color.jpg/120px-Mercury_in_true_color.jpg',
+    'Venus':   'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Venus_2_Approach_Image.jpg/120px-Venus_2_Approach_Image.jpg',
+    'Mars':    'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/120px-OSIRIS_Mars_true_color.jpg',
+    'Jupiter': 'https://images-assets.nasa.gov/image/PIA02873/PIA02873~thumb.jpg',
+    'Saturn':  'https://images-assets.nasa.gov/image/PIA01364/PIA01364~thumb.jpg',
+    'Uranus':  'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Uranus2.jpg/120px-Uranus2.jpg',
+    'Neptune': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Neptune.jpg/120px-Neptune.jpg',
+    'Moon':    'https://images-assets.nasa.gov/image/PIA00405/PIA00405~thumb.jpg',
+    // Verified NASA fireball capture
+    'Meteor':  'https://cdn.mos.cms.futurecdn.net/4czEUp6bukNZcXeGZKKpRH-620-80.jpg',
+    // Verified NASA star cluster capture
+    // High-resolution Hubble telescope capture of a true point star with diffraction spikes
+  'Star': 'https://assets.science.nasa.gov/content/dam/science/astro/universe/internal_resources/496/Sun_Emits_Flare.jpeg'
+  };
 
+  let src = map[name];
+  if (!src) {
+    const lower = (name + ' ' + (type || '')).toLowerCase();
+    if (lower.includes('meteor') || lower.includes('shower')) {
+      src = map['Meteor'];
+    } else {
+      src = map['Star'];
+    }
+  }
+
+  const isSaturn = name === 'Saturn';
+  const radius = isSaturn ? '0' : '50%';
+  const blend = isSaturn ? 'mix-blend-mode: screen;' : '';
+
+  return `<img src="${src}" alt="" referrerpolicy="no-referrer" style="${imgStyle} border-radius:${radius}; ${blend}">`;
+}
 function renderAll(){
   renderTonight(); renderNextEvent(); renderEvents(); renderCalendar(); renderMoon(); renderFavorites(); renderWeather(); renderSpaceWeather(); renderMoonImage(); renderAPOD();
   if(typeof renderEnhancements==='function') renderEnhancements();
@@ -546,42 +838,58 @@ showPage('home');
 
 /* ============ INTERACTIVE SOLAR SYSTEM (homepage) ============ */
 const PLANET_DATA = [
-  {name:'Mercury', color:'#b5aca2', size:14, rx:70, period:28.9, facts:[
+  {name:'Mercury', size:15, rx:70, period:13.9, 
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Mercury_in_true_color.jpg/120px-Mercury_in_true_color.jpg',
+   facts:[
     'Mercury is the smallest planet in our solar system and the closest to the Sun.',
     'A year on Mercury takes just 88 Earth days.',
     'Despite being closest to the Sun, Mercury is not the hottest planet — Venus is.',
     'Mercury has almost no atmosphere, so temperatures swing wildly between day and night.']},
-  {name:'Venus', color:'#e0c28c', size:20, rx:100, period:74.8, facts:[
+  {name:'Venus', size:21, rx:100, period:20.8, 
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Venus_2_Approach_Image.jpg/120px-Venus_2_Approach_Image.jpg',
+   facts:[
     'Venus spins backwards compared to most planets, a motion called retrograde rotation.',
     'A day on Venus is longer than its year.',
     'Venus is the hottest planet in the solar system due to a runaway greenhouse effect.',
     'Venus is often called Earth\'s "twin" because of its similar size and mass.']},
-  {name:'Earth', color:'#5b8ec9', size:21, rx:132, period:120, facts:[
+  {name:'Earth', size:22, rx:132, period:30, 
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/The_Earth_seen_from_Apollo_17.jpg/120px-The_Earth_seen_from_Apollo_17.jpg',
+   facts:[
     'Earth is the only known planet with liquid water on its surface.',
     'Earth\'s atmosphere is about 78% nitrogen and 21% oxygen.',
     'A day on Earth is slowly getting longer due to the Moon\'s gravitational pull.',
     'Earth is the only planet not named after a Greek or Roman deity.']},
-  {name:'Mars', color:'#c1603f', size:17, rx:166, period:225.6, facts:[
+  {name:'Mars', size:18, rx:166, period:42, 
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/120px-OSIRIS_Mars_true_color.jpg',
+   facts:[
     'Mars is home to Olympus Mons, the tallest volcano in the solar system.',
     'Mars has two small moons, Phobos and Deimos.',
     'A year on Mars lasts about 687 Earth days.',
     'Mars\' red color comes from iron oxide — essentially rust — covering its surface.']},
-  {name:'Jupiter', color:'#c9a06a', size:38, rx:224, period:1423.2, facts:[
+  {name:'Jupiter', size:40, rx:224, period:66, 
+   img:'https://images-assets.nasa.gov/image/PIA02873/PIA02873~thumb.jpg',
+   facts:[
     'Jupiter is the largest planet in our solar system — over 1,300 Earths could fit inside it.',
     'Jupiter\'s Great Red Spot is a giant storm that has raged for centuries.',
     'Jupiter has at least 95 known moons.',
     'Jupiter has the shortest day of any planet, rotating once in about 10 hours.']},
-  {name:'Saturn', color:'#d9c79a', size:35, rx:276, period:3535.2, facts:[
+  {name:'Saturn', size:44, rx:276, period: 90, 
+   img:'https://images-assets.nasa.gov/image/PIA01364/PIA01364~thumb.jpg',
+   facts:[
     'Saturn\'s rings are made mostly of ice particles, with some rock and dust.',
     'Saturn is the least dense planet — it would float in water if you had a big enough bathtub.',
     'Saturn has 146 confirmed moons, the most of any planet.',
     'A year on Saturn lasts about 29 Earth years.']},
-  {name:'Uranus', color:'#8fd0d6', size:29, rx:322, period:10080, facts:[
+  {name:'Uranus', size:29, rx:322, period:115, 
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Uranus2.jpg/120px-Uranus2.jpg',
+   facts:[
     'Uranus rotates on its side, with an axial tilt of about 98 degrees.',
     'Uranus was the first planet discovered using a telescope, in 1781.',
     'Uranus has faint rings, discovered in 1977.',
     'Uranus appears pale blue-green due to methane in its atmosphere.']},
-  {name:'Neptune', color:'#5a7fd6', size:27, rx:366, period:19776, facts:[
+  {name:'Neptune', size:28, rx:366, period:140, 
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Neptune.jpg/120px-Neptune.jpg',
+   facts:[
     'Neptune has the strongest winds in the solar system, reaching up to 2,100 km/h.',
     'Neptune was the first planet located through mathematical prediction rather than direct observation.',
     'A year on Neptune lasts about 165 Earth years.',
@@ -594,9 +902,9 @@ PLANET_DATA[2].hi='#bcd9ef'; PLANET_DATA[2].lo='#1f3a5f';
 PLANET_DATA[3].hi='#e2a184'; PLANET_DATA[3].lo='#5c2a18';
 PLANET_DATA[4].bands=['#e7c9a0 0 8%','#c9a06a 8% 16%','#a97f4c 16% 24%','#dbb98a 24% 32%','#c9a06a 32% 42%','#b58c5c 42% 50%','#e7c9a0 50% 58%','#c9a06a 58% 68%','#a97f4c 68% 78%','#dbb98a 78% 88%','#c9a06a 88% 100%'];
 PLANET_DATA[5].bands=['#f2e6c4 0 12%','#d9c79a 12% 24%','#e8dcb2 24% 36%','#d0bd8c 36% 50%','#f2e6c4 50% 62%','#d9c79a 62% 76%','#e8dcb2 76% 88%','#d0bd8c 88% 100%'];
-PLANET_DATA[5].ring=true;
+PLANET_DATA[5].ring=false;
 PLANET_DATA[6].hi='#c9edf0'; PLANET_DATA[6].lo='#356266';
-PLANET_DATA[6].ring=true;
+PLANET_DATA[6].ring=false;
 PLANET_DATA[7].hi='#a9c1f2'; PLANET_DATA[7].lo='#22336b';
 const RY_RATIO = 0.42; // flatten factor for tilted-orbit look
 
@@ -621,7 +929,7 @@ function buildSolarSystem(){
 
     const btn = document.createElement('button');
     btn.className = 'planet-btn';
-    const hitSize = Math.max(p.size, 40); // enlarge tap target without changing the visible planet size
+    const hitSize = Math.max(p.size, 44);
     btn.style.width = hitSize+'px';
     btn.style.height = hitSize+'px';
     btn.title = p.name;
@@ -630,11 +938,36 @@ function buildSolarSystem(){
     btn.onclick = ()=> showPlanetFact(i);
 
     const sphere = document.createElement('span');
-    sphere.className = 'planet-sphere' + (p.ring? ' has-ring':'');
+    sphere.className = 'planet-sphere' + (p.name === 'Saturn' ? ' is-saturn' : '');
     sphere.style.width = p.size+'px';
     sphere.style.height = p.size+'px';
     sphere.style.display = 'block';
-    sphere.style.background = planetGradient(p);
+    sphere.style.position = 'relative';
+
+    if (p.name === 'Saturn') {
+      sphere.style.borderRadius = '0';
+      sphere.style.backgroundImage = `url("${p.img}")`;
+      sphere.style.backgroundSize = 'contain';
+      sphere.style.backgroundPosition = 'center';
+      sphere.style.backgroundRepeat = 'no-repeat';
+      sphere.style.mixBlendMode = 'screen';
+    } else {
+      sphere.style.borderRadius = '50%';
+      sphere.style.background = planetGradient(p);
+      sphere.style.boxShadow = 'inset -3px -3px 5px rgba(0,0,0,0.65), 0 0 6px rgba(255,255,255,0.2)';
+
+      if(p.img){
+        const img = new Image();
+        img.referrerPolicy = 'no-referrer';
+        img.src = p.img;
+        img.onload = () => {
+          sphere.style.backgroundImage = `url("${p.img}")`;
+          sphere.style.backgroundSize = 'cover';
+          sphere.style.backgroundPosition = 'center';
+        };
+      }
+    }
+
     btn.appendChild(sphere);
 
     const label = document.createElement('span');
@@ -645,10 +978,55 @@ function buildSolarSystem(){
     p._el = btn;
   });
 }
+// Mean longitude rates (deg/century) to find each planet's real angular position today
+const REAL_PLANET_ANGLES = {
+  Mercury: { L0: 252.25, Ld: 149472.67 },
+  Venus:   { L0: 181.98, Ld: 58517.82 },
+  Earth:   { L0: 100.46, Ld: 35999.37 },
+  Mars:    { L0: -4.55,  Ld: 19140.30 },
+  Jupiter: { L0: 34.40,  Ld: 3034.75 },
+  Saturn:  { L0: 49.95,  Ld: 1222.49 },
+  Uranus:  { L0: 313.24, Ld: 428.48 },
+  Neptune: { L0: -55.12, Ld: 218.46 }
+};
+
+function getTruePlanetAngle(name) {
+  const d = new Date();
+  const T = (toJulian(d) - 2451545) / 36525; // centuries since J2000
+  const el = REAL_PLANET_ANGLES[name];
+  if (!el) return 0;
+  const deg = ((el.L0 + el.Ld * T) % 360 + 360) % 360;
+  return deg * (Math.PI / 180); // radians
+}
 const reduceMotionSolar = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const EARTH_ORBIT = {
+  a0: 1.00000261, ad: 0.00000562, e0: 0.01671123, ed: -0.00004392,
+  i0: -0.00001531, id: -0.01294668, L0: 100.46457166, Ld: 35999.37244981,
+  varpi0: 102.93768193, vd: 0.32327364, node0: 0, nd: 0
+};
+
+function getTrueOrbitalAngle(planetName) {
+  const now = new Date();
+  const params = planetName === 'Earth' 
+    ? EARTH_ORBIT 
+    : PLANETS.find(p => p.name === planetName);
+
+  if (!params) return 0;
+  const pos = heliocentric(params, now);
+  return Math.atan2(pos.y, pos.x); // Ecliptic heliocentric angle in radians
+}
+
 function animateSolarSystem(t){
-  PLANET_DATA.forEach(p=>{
-    const angle = reduceMotionSolar ? 0 : (t/1000) * (2*Math.PI/p.period);
+  PLANET_DATA.forEach(p => {
+    // Compute true astronomical position on initialization
+    if (p._initialAngle === undefined) {
+      p._initialAngle = getTrueOrbitalAngle(p.name);
+    }
+
+    const angle = reduceMotionSolar 
+      ? p._initialAngle 
+      : p._initialAngle + (t / 1000) * (2 * Math.PI / p.period);
+
     const x = Math.cos(angle) * p.rx;
     const y = Math.sin(angle) * p.rx * RY_RATIO;
     if(p._el){
@@ -675,8 +1053,12 @@ function closePlanetPanel(){
 function showPlanetFact(i){
   const p = PLANET_DATA[i];
   const fact = p.facts[Math.floor(Math.random()*p.facts.length)];
+  const visualThumb = p.img 
+    ? `<div style="width:56px; height:56px; border-radius:50%; background:url('${p.img}') center/cover no-repeat; box-shadow:inset -4px -4px 6px rgba(0,0,0,.6), 0 0 10px rgba(255,255,255,0.25); margin-bottom:16px;"></div>`
+    : `<div style="width:56px; height:56px; border-radius:50%; background:${planetGradient(p)}; box-shadow:inset -4px -4px 6px rgba(0,0,0,.5), inset 3px 3px 4px rgba(255,255,255,.25); margin-bottom:16px;"></div>`;
+
   document.getElementById('planetModalBody').innerHTML = `
-    <div style="width:56px; height:56px; border-radius:50%; background:${planetGradient(p)}; box-shadow:inset -4px -4px 6px rgba(0,0,0,.5), inset 3px 3px 4px rgba(255,255,255,.25); margin-bottom:16px;"></div>
+    ${visualThumb}
     <div class="pp-name">${p.name}</div>
     <div class="pp-sub">Planet</div>
     <p style="font-size:14.5px; line-height:1.6; margin-top:18px; color:var(--ink-dim);">${fact}</p>

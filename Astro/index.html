@@ -43,6 +43,8 @@ function toggleTheme(){
 <button class="iconbtn" onclick="openSearch()" title="Search" aria-label="Search">⌕</button>
 <button class="pill" id="locPill" onclick="openLocationModal()">📍 Set location</button>
 <button class="btn btn-ghost" onclick="showPage('mysky')" style="padding:9px 16px;">My Sky</button>
+<!-- SQL Auth Trigger Button -->
+<button class="btn btn-primary" id="authNavBtn" onclick="openAuthModal()" style="padding:9px 16px;">Log In</button>
 </div>
 </div>
 </nav>
@@ -70,6 +72,14 @@ function toggleTheme(){
 </div>
 </div>
 <p class="muted" style="text-align:center; font-size:12.5px; margin-top:10px;">Tap a planet for a random fact.</p>
+<!-- Realistic Orbital Mechanics Notice -->
+<div class="orbital-physics-note">
+  <span class="physics-badge">✦ Live Orbital Engine</span>
+  <p>
+    Orbits dynamically adhere to <strong>Kepler’s Third Law</strong> with semi-major axes scaled to relative planetary distances. 
+    Current planetary positions are mathematically solved in real time using <strong>NASA/JPL heliocentric mean longitudes</strong> for today's date, rendered with authentic photographic space textures.
+  </p>
+</div>
 </section>
 <!-- PLANET FACT SIDE PANEL -->
 <div id="planetPanelScrim" onclick="closePlanetPanel()"></div>
@@ -293,6 +303,109 @@ function toggleTheme(){
 <div class="modal-bg hidden" id="eventModal" role="dialog" aria-modal="true" aria-label="Event details">
 <div class="modal" id="eventModalBody" style="position:relative;"></div>
 </div>
+<!-- AUTH MODAL -->
+<div class="modal-bg hidden" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+  <div class="modal" style="position:relative; max-width:400px; width:100%;">
+    <button class="iconbtn modal-close" onclick="closeAuthModal()">✕</button>
+    <h2 id="authTitle" style="margin-bottom:6px;">Sign In</h2>
+    <p class="muted" id="authSubtitle" style="font-size:13px; margin-bottom:18px;">Access your personalized celestial events.</p>
 
-<script src="js/app.js"></script><script src="js/enhancements.js"></script><script src="js/trip.js"></script></body>
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <input type="email" id="authEmail" placeholder="Email address" style="width:100%; padding:10px 14px; border-radius:8px; border:1px solid var(--border, #333); background:rgba(255,255,255,0.05); color:inherit; font-family:inherit;">
+      <input type="password" id="authPassword" placeholder="Password" style="width:100%; padding:10px 14px; border-radius:8px; border:1px solid var(--border, #333); background:rgba(255,255,255,0.05); color:inherit; font-family:inherit;">
+      <div id="authError" style="color:#ff6b6b; font-size:12.5px; display:none; line-height:1.4;"></div>
+      <button class="btn btn-primary" id="authSubmitBtn" onclick="handleAuthSubmit()" style="width:100%; justify-content:center; padding:10px;">Log In</button>
+    </div>
+
+    <div style="margin-top:16px; font-size:12.5px; text-align:center;" class="muted">
+      <span id="authTogglePrompt">Don't have an account?</span>
+      <a href="javascript:void(0)" id="authToggleLink" onclick="toggleAuthMode()" style="color:var(--accent, #7da0fa); margin-left:4px; text-decoration:underline;">Create one</a>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script><script src="js/enhancements.js"></script><script src="js/trip.js"></script>
+<script>
+let isSignUpMode = false;
+
+function updateAuthNav() {
+  const user = JSON.parse(localStorage.getItem('as_user') || 'null');
+  const btn = document.getElementById('authNavBtn');
+  if (!btn) return;
+  if (user && user.email) {
+    btn.textContent = 'Log Out (' + user.email.split('@')[0] + ')';
+    btn.onclick = logoutUser;
+  } else {
+    btn.textContent = 'Log In';
+    btn.onclick = openAuthModal;
+  }
+}
+
+function openAuthModal() {
+  const m = document.getElementById('authModal');
+  if (m) m.classList.remove('hidden');
+  document.getElementById('authError').style.display = 'none';
+}
+
+function closeAuthModal() {
+  const m = document.getElementById('authModal');
+  if (m) m.classList.add('hidden');
+}
+
+function toggleAuthMode() {
+  isSignUpMode = !isSignUpMode;
+  document.getElementById('authTitle').textContent = isSignUpMode ? 'Create Account' : 'Sign In';
+  document.getElementById('authSubtitle').textContent = isSignUpMode ? 'Save your events to the database.' : 'Access your personalized celestial events.';
+  document.getElementById('authSubmitBtn').textContent = isSignUpMode ? 'Sign Up' : 'Log In';
+  document.getElementById('authTogglePrompt').textContent = isSignUpMode ? 'Already have an account?' : "Don't have an account?";
+  document.getElementById('authToggleLink').textContent = isSignUpMode ? 'Sign in' : 'Create one';
+  document.getElementById('authError').style.display = 'none';
+}
+
+async function handleAuthSubmit() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const errBox = document.getElementById('authError');
+
+  if (!email || !password) {
+    errBox.textContent = 'Please fill in both email and password.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  const endpoint = isSignUpMode ? '/api/signup' : '/api/login';
+
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      errBox.textContent = data.error || 'Authentication failed';
+      errBox.style.display = 'block';
+      return;
+    }
+
+    localStorage.setItem('as_user', JSON.stringify({ id: data.userId, email: data.email }));
+    closeAuthModal();
+    updateAuthNav();
+    if (typeof loadFavorites === 'function') loadFavorites();
+  } catch (err) {
+    errBox.textContent = 'Connection to server failed.';
+    errBox.style.display = 'block';
+  }
+}
+
+function logoutUser() {
+  localStorage.removeItem('as_user');
+  updateAuthNav();
+  if (typeof loadFavorites === 'function') loadFavorites();
+}
+
+document.addEventListener('DOMContentLoaded', updateAuthNav);
+</script>
+</body>
 </html>

@@ -143,20 +143,47 @@ nav.topnav{
 .hero-title{font-size:clamp(32px,5.4vw,58px);line-height:1.04;letter-spacing:-.015em;margin:14px 0 6px;}
 .hero-title em{color:var(--accent);font-style:italic;}
 .solar-wrap{position:relative;display:flex;align-items:center;justify-content:center;padding:24px 10px 0;overflow:hidden;min-height:min(600px,64vh);}
-.solar-glow{position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(circle at center,rgba(255,190,110,.10) 0%,transparent 45%);}
+.solar-glow {
+  display: none !important;
+}
 .solar-system{position:relative;z-index:1;width:min(920px,94vw);height:min(560px,60vh);transform:scale(min(1,calc((94vw - 20px) / 780)));transform-origin:center;}
-.sun{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;
-  background:radial-gradient(circle at 35% 30%,#fff8e6,#ffcf6b 35%,#ff9d3d 65%,#d9611a 100%);
-  box-shadow:0 0 22px 8px rgba(255,190,110,.55),0 0 70px 30px rgba(255,150,60,.22),0 0 130px 60px rgba(255,120,40,.10);
-  z-index:5;cursor:pointer;
+.sun {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  z-index: 5;
+  outline: none;
+  overflow: hidden;
+
+  /* Zooms past the outer dark ring while keeping pure stellar plasma */
+  background: url('https://images-assets.nasa.gov/image/GSFC_20171208_Archive_e001435/GSFC_20171208_Archive_e001435~thumb.jpg') center / 135% 135% no-repeat;
+  
+  /* Subtle neutral/white rim glow instead of orange halo */
+  box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.45);
+  animation: none;
 }
 .orbit-ring{position:absolute;top:50%;left:50%;border:1px dashed rgba(150,180,220,.28);border-radius:50%;transform:translate(-50%,-50%);z-index:2;}
 .planet-btn{position:absolute;top:50%;left:50%;display:flex;align-items:center;justify-content:center;background:transparent;border:none;padding:0;transform:translate3d(var(--orbit-x,0),var(--orbit-y,0),0) translate(-50%,-50%);will-change:transform;z-index:4;}
 .planet-sphere{position:relative;border-radius:50%;box-shadow:inset -3px -3px 5px rgba(0,0,0,.5),inset 2px 2px 3px rgba(255,255,255,.25),0 0 6px rgba(0,0,0,.4);transition:filter .15s;}
 .planet-btn:hover .planet-sphere{filter:brightness(1.3);}
 .planet-sphere.has-ring:after{content:"";position:absolute;top:50%;left:50%;width:220%;height:70%;border:1.5px solid rgba(220,210,180,.55);border-radius:50%;transform:translate(-50%,-50%) rotate(-18deg);pointer-events:none;}
-.planet-label{position:absolute;top:100%;left:50%;transform:translateX(-50%);font:400 9.5px/1 var(--mono);letter-spacing:.06em;color:var(--ink-dim);white-space:nowrap;margin-top:5px;pointer-events:none;}
+.planet-label {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  font-size: 10px;
+  font-family: var(--mono, monospace);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0.85;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
 .mini-planet{width:26px;height:26px;border-radius:50%;display:inline-block;position:relative;box-shadow:inset -3px -3px 5px rgba(0,0,0,.5),inset 2px 2px 3px rgba(255,255,255,.25);}
 .mini-planet.has-ring:after{content:"";position:absolute;top:50%;left:50%;width:190%;height:60%;border:1.5px solid rgba(220,210,180,.65);border-radius:50%;transform:translate(-50%,-50%) rotate(-18deg);}
 
@@ -264,7 +291,16 @@ nav.topnav{
 #calGrid{display:block;}
 
 /* ---------- moon ---------- */
-.moonvis{width:96px;height:96px;border-radius:50%;position:relative;margin:0 auto;background:#222;overflow:hidden;border:1px solid var(--line-strong);box-shadow:inset 0 0 24px rgba(0,0,0,.7);}
+#moonVis {
+  width: 130px;
+  height: 130px;
+  min-height: 130px;
+  margin: 0 auto 16px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
 
 /* ---------- flip card (facts) ---------- */
 .ff-wrap{max-width:640px;margin:12px auto 0;}
@@ -341,9 +377,19 @@ footer{padding:44px 0 calc(40px + env(safe-area-inset-bottom,0px));border-top:1p
   #skyMapCanvas{height:320px;}
   .navrow{padding:10px 16px;}
   .brand{letter-spacing:.18em;}
+
+
 }
 @media(prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
-
+.planet-pic {
+  display: inline-block;
+  width: 1.25em;
+  height: 1.25em;
+  vertical-align: -0.2em;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
+}
 /* ---------- trip planner ---------- */
 .site-card{padding:18px;display:flex;flex-direction:column;gap:8px;cursor:pointer;}
 .site-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;}
@@ -368,3 +414,50 @@ footer{padding:44px 0 calc(40px + env(safe-area-inset-bottom,0px));border-top:1p
 .trip-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
 .trip-disclaimer{font:400 11.5px/1.6 var(--mono);margin-top:18px;max-width:720px;}
 .trip-empty{grid-column:1/-1;padding:24px;border:1px dashed var(--line-strong);border-radius:var(--radius);font:400 13px/1.6 var(--mono);color:var(--ink-dim);}
+/* Blend away black backgrounds on transparent planetary textures like Saturn */
+.planet-sphere {
+  mix-blend-mode: screen;
+}
+/* Allow Saturn's rings to display without a circular border or dark halo */
+.planet-sphere.is-saturn {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
+  filter: drop-shadow(0 0 4px rgba(255, 230, 180, 0.25));
+}
+.orbital-physics-note {
+  max-width: 620px;
+  margin: 18px auto 0 auto;
+  padding: 12px 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  text-align: center;
+}
+
+.orbital-physics-note p {
+  margin: 6px 0 0 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-dim, #9ea4b0);
+}
+
+.orbital-physics-note strong {
+  color: var(--ink, #ffffff);
+  font-weight: 600;
+}
+
+.physics-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-family: var(--mono, monospace);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--cyan, #38bdf8);
+  background: rgba(56, 189, 248, 0.12);
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}

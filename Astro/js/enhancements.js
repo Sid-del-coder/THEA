@@ -150,8 +150,28 @@ function bodyNowList(t=new Date()){
   if(!USER_LOC) return [];
   const out=[]; const moon=moonCoords(t), ma=altAz(moon.ra,moon.dec,t,USER_LOC.lat,USER_LOC.lng);
   if(ma.alt>0) out.push({name:'Moon',icon:'🌙',alt:ma.alt,az:ma.az,score:clamp(55+ma.alt/2)});
-  PLANETS.forEach(p=>{const c=planetGeoRaDec(p,t),h=altAz(c.ra,c.dec,t,USER_LOC.lat,USER_LOC.lng);if(h.alt>2)out.push({name:p.name,icon:'🪐',alt:h.alt,az:h.az,score:clamp(45+h.alt*.7)});});
-  BRIGHT_STARS.forEach(s=>{const h=altAz(s.ra,s.dec,t,USER_LOC.lat,USER_LOC.lng);if(h.alt>8)out.push({name:s.name,icon:'⭐',alt:h.alt,az:h.az,score:clamp(72+h.alt*.25-s.mag*3)});});
+ PLANETS.forEach(p=>{const c=planetGeoRaDec(p,t),h=altAz(c.ra,c.dec,t,USER_LOC.lat,USER_LOC.lng);if(h.alt>2)out.push({name:p.name,icon:getTargetIcon(p.name),alt:h.alt,az:h.az,score:clamp(45+h.alt*.7)});});
+BRIGHT_STARS.forEach(s=>{const h=altAz(s.ra,s.dec,t,USER_LOC.lat,USER_LOC.lng);if(h.alt>8)out.push({name:s.name,icon:getTargetIcon(s.name, 'Star'),alt:h.alt,az:h.az,score:clamp(72+h.alt*.25-s.mag*3)});});
+// 1. Planets
+  PLANETS.forEach(p=>{const c=planetGeoRaDec(p,t),h=altAz(c.ra,c.dec,t,USER_LOC.lat,USER_LOC.lng);if(h.alt>2)out.push({name:p.name,icon:getTargetIcon(p.name),alt:h.alt,az:h.az,score:clamp(45+h.alt*.7)});});
+  
+  // 2. Bright Stars
+  BRIGHT_STARS.forEach(s=>{const h=altAz(s.ra,s.dec,t,USER_LOC.lat,USER_LOC.lng);if(h.alt>8)out.push({name:s.name,icon:getTargetIcon(s.name, 'Star'),alt:h.alt,az:h.az,score:clamp(72+h.alt*.25-s.mag*3)});});
+
+  // 3. Meteor Activity / Showers
+  if (Array.isArray(EVENTS)) {
+    const now = new Date();
+    const activeShowers = EVENTS.filter(e => e.category === 'Meteor Shower' && Math.abs((e._date - now)/86400000) <= 15);
+    activeShowers.forEach(m => {
+      out.push({
+        name: m.subtype || m.name,
+        icon: getTargetIcon('Meteor'),
+        alt: 45, // zenith observation zone
+        az: 90,
+        score: 85
+      });
+    });
+  }
   return out.sort((a,b)=>b.score-a.score);
 }
 function countVisibleBodies(t){return bodyNowList(t).length;}
